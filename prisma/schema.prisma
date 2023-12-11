@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model admin {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Products products[]
+}
+
+model categories {
+  id            String   @id @default(cuid())
+  category_name String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  Products products[]
+}
+
+model products {
+  id            String   @id @default(cuid())
+  product_name String
+  categorie String
+  size String
+  color String
+  price Int
+  descriptions String
+  admin_id String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  Photo_product photo_product[]
+  Cart cart[]
+  Item_order item_order[]
+  Categories categories @relation(fields: [categorie], references: [id])
+  Admin admin @relation(fields: [admin_id], references: [id])
+}
+
+model photo_product{
+    id            String   @id @default(cuid())
+    id_product String
+    image String
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    Products products @relation(fields: [id_product], references: [id], onDelete: Cascade)
+}
+
+// client model
+model user {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String
+  password  String
+  Cart cart[]
+  Order order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model cart {
+  id        String   @id @default(cuid())
+  id_user String
+  id_product String
+  amount Int
+  User user @relation(fields: [id_user], references: [id], onDelete: Cascade)
+  Products products @relation(fields: [id_product], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model order{
+  id        String   @id
+  id_user String
+  payment String
+  status String
+  total_price Int
+  User user @relation(fields: [id_user], references: [id], onDelete: Cascade)
+  item_order item_order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model item_order {
+  id String   @id @default(cuid())
+  id_order String
+  id_product String
+  amount Int
+  Products products @relation(fields: [id_product], references: [id])
+  Order order @relation(fields: [id_order], references: [id] , onDelete: Cascade)
+}
